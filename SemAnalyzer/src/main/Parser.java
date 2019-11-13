@@ -27,6 +27,7 @@ public class Parser {
 	static String currFunType = ""; // current function type
 	static ArrayList<ArrayList<String>> var = new ArrayList<ArrayList<String>>(); // variable table
 	static ArrayList<ArrayList<String>> fun = new ArrayList<ArrayList<String>>(); // function table
+	static ArrayList<String> funParams = new ArrayList<String>(); // function paramaters
 	static String tok = ""; // current token
 	static String arrname = "";
 	static String expfrom = "";
@@ -275,8 +276,10 @@ public class Parser {
 			node.addChild(token());
 			nextToken();
 			addFunNoParams(currFunType, currFun);
-		} else
+		} else {
 			node.addChild(paramsList());
+			addFunParams(currFunType, currFun, funParams);
+		}
 
 		return node;
 	}
@@ -306,13 +309,20 @@ public class Parser {
 	}
 
 	private static Node param() {
+		boolean arr = false;
 		Node node = new Node("param");
 		System.out.println("PARAM " + token);
 		node.addChild(typeSpecifier());
 		if (token.contains("ID: ")) {
+			funParams.add("int");
+			funParams.add(token);
+			funParams.add("");
 			node.addChild(token());
 			nextToken();
 			if (token.equals("[")) {
+				arr = true;
+				funParams.add("true");
+				funParams.add("");
 				node.addChild(token());
 				nextToken();
 				if (token.equals("]")) {
@@ -322,6 +332,11 @@ public class Parser {
 					rej();
 				}
 			}
+			if(!arr) {
+				funParams.add("false");
+				funParams.add("");
+			}
+			
 		} else {
 			rej();
 		}
@@ -699,31 +714,51 @@ public class Parser {
 				rej();
 			}
 		} else if (token.contains("ID: ")) {
+			if(!checkVarExists(currFun, token) && !checkLocalVarExists(currFun, token)) {
+				here(718);
+				rej();
+			}
+			if(!tokens[o+1].equals("[")) {
+				if(checkIfArray(currFun, token)) {
+					here(723);
+					rej();
+				}
+				else if(checkIfLocalArray(currFun, token)) {
+				here(727);
+				rej();
+				}
+			}
 			node.addChild(token());
 			if (expfrom.equals("return")) {
+				System.out.println("MADE IN HERE OR REST?");
 				if (tokens[o + 1].equals(";")) {
 					if (checkIfArray(currFun, token) && checkIfLocalArray(currFun, token)) {
 						here(695);
 						rej();
 					}
 				}
-				else if(tokens[o+1].equals("[") && tokens[o+2].contains("NUM") 
-						|| tokens[o+2].contains("ID")) {
-					if (!checkIfArray(currFun, token) && !checkIfLocalArray(currFun, token)) {
+				else if(tokens[o+1].equals("[") ){
+					if(!checkIfArray(currFun, token) && !checkIfLocalArray(currFun, token)) {
 						here(708);
 						rej();
 					}
 					if(tokens[o+2].contains("ID")) {
-						if(!checkVarExists(currFun, tokens[o+2]) && !checkLocalVarExists(currFun, tokens[o+2])) {
-							here(718);
-							rej();
+							if(!checkVarExists(currFun, tokens[o+2]) && !checkLocalVarExists(currFun, tokens[o+2])) {
+								here(718);
+								rej();
+							}
 						}
-					}
 				}
+				/*
 				else if(tokens[o+1].equals("[") && !tokens[o+2].contains("NUM")
 						|| !tokens[o+2].contains("ID")) {
+					System.out.println(token);
+					System.out.println(tokens[o+1]);
+					System.out.println(tokens[o+2]);
+					here(725);
 					rej();
 				}
+				*/
 			}
 			nextToken();
 			node.addChild(factorP());
@@ -848,7 +883,7 @@ public class Parser {
 	
 	public static boolean checkLocalVarExists(String checkFun, String id) {
 		for (int i = 0; i < fun.size(); i++) {
-			if (fun.get(i).get(1).equals(checkFun)) {
+			if (fun.get(i).get(2).equals(checkFun)) {
 				for (int j = 3; j < fun.get(i).size(); j++) {
 					if (fun.get(i).get(j).equals(id)) {
 						return true;
@@ -860,7 +895,6 @@ public class Parser {
 	}
 	
 	public static boolean checkIfArray(String checkFun, String id) {
-		if(checkVarExists(checkFun, id)) {
 		for (int i = 0; i < var.size(); i++) {
 			if (var.get(i).get(2).equals(id)) {
 				if(var.get(i).get(4).equals("true")) {
@@ -868,21 +902,21 @@ public class Parser {
 				}
 			}
 		}
-		}
-		else {
-			if(reject) {
-			rej();
-			}
-		}
 		return false;
 	}
 	
 	public static boolean checkIfLocalArray(String checkFun, String id) {
-		if (checkLocalVarExists(checkFun, id)) {
+		System.out.println(checkFun);
+		System.out.println(id);
+		System.out.println("_________________");
 			for (int i = 0; i < fun.size(); i++) {
-				if (fun.get(i).get(1).equals(checkFun)) {
+				System.out.println(fun.get(i).get(1));
+				System.out.println("--------");
+				if (fun.get(i).get(2).equals(checkFun)) {
 					for(int j = 4; j < fun.get(i).size(); j+=5) {
+						System.out.println(fun.get(i).get(j));
 						if(fun.get(i).get(j).equals(id)) {
+							System.out.println(fun.get(i).get(j+2));
 							if(fun.get(i).get(j+2).equals("true")) {
 								return true;
 							}
@@ -890,11 +924,6 @@ public class Parser {
 					}
 				}
 			}
-		} else {
-			if(reject) {
-			rej();
-			}
-		}
 		return false;
 	}
 

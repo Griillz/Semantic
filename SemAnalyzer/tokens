@@ -10,7 +10,13 @@ NUM: 50
 K: int
 ID: foo
 (
-K: void
+K: int
+ID: pol
+[
+]
+,
+K: int
+ID: poll
 )
 {
 K: int
@@ -23,21 +29,19 @@ NUM: 50
 ]
 ;
 K: return
-NUM: 7
-+
-NUM: 7
-+
 ID: x
-<=
++
 NUM: 7
 +
 ID: fee
+[
+ID: y
++
+ID: y
++
+ID: glob
 [
 NUM: 50
-+
-ID: fee
-[
-NUM: 59
 ]
 ]
 ;
