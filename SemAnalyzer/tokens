@@ -1,0 +1,52 @@
+K: int
+ID: x
+;
+K: int
+ID: glob
+[
+NUM: 50
+]
+;
+K: int
+ID: foo
+(
+K: void
+)
+{
+K: int
+ID: y
+;
+K: int
+ID: fee
+[
+NUM: 50
+]
+;
+K: return
+NUM: 7
++
+NUM: 7
++
+ID: x
+<=
+NUM: 7
++
+ID: fee
+[
+NUM: 50
++
+ID: fee
+[
+NUM: 59
+]
+]
+;
+}
+K: void
+ID: main
+(
+K: void
+)
+{
+}
+$
