@@ -1,0 +1,20 @@
+K: void
+ID: main
+(
+K: void
+)
+{
+K: int
+ID: a
+;
+{
+ID: a
+[
+NUM: 0
+]
+=
+NUM: 1
+;
+}
+}
+$
